@@ -3,11 +3,12 @@ import random
 import time
 import ngram
 
+
 # extracts all the sentences from the MLRS Corpus
 def convert():
     path = "./Corpus"
     sentence = "<s>"
-    sentences = []
+    _sentences = []
     text_files = glob.glob(path + "/*.txt")
     if len(text_files) == 0:
         print("ERROR NO CORPUS FOUND!!!\nEXITING...")
@@ -18,7 +19,7 @@ def convert():
         for line in open(file, 'rt', encoding='utf8'):
             if line[:3] == '</s':
                 sentence += " </s>"
-                sentences.append(sentence)
+                _sentences.append(sentence)
                 sentence = "<s>"
             elif line[:1] == '<':
                 continue
@@ -28,31 +29,26 @@ def convert():
 
         print("finished scanning file: " + file)
     print("Finished loading Corpus")
-    return sentences
+    return _sentences
 
 
 if __name__ == '__main__':
     st = time.time()
+
     sentences = convert()
+    unk_sentences = []
 
-    # separates the dictionary of sentences into a training and testing set, using
-    # a simple shuffle of sentences and segmentation of list with 80% being used for the
-    # training set and 20% for the testing set.
-    random.shuffle(sentences)
-    training_sentences = sentences[:round(len(sentences) * 0.8)]
-    testing_sentences = sentences[round(len(sentences) * 0.8):]
+    unigram = ngram.NGram()
+    unigram.populate(sentences, 1)
 
-    # saves the training and testing set as separate text files, where each line is a sentence
-    print("Saving data sets...")
-    f1 = open("training_sentences.txt", "w", encoding='utf8')
-    for s in training_sentences:
-        f1.write(s + " \n")
-    f1.close()
-    print("Finished saving training set")
-    f2 = open("testing_sentences.txt", "w", encoding='utf8')
-    for s in testing_sentences:
-        f2.write(s + " \n")
-    f2.close()
-    print("Finished saving test set")
-    print("%.2f" % (time.time() - st))
+    for sentence in sentences:
+        unk_sentence = ""
+        for word in sentence.split():
+            # if a word only occurs once in our data set replace it with an unk token
+            # in our corpus of sentences
+            if unigram.LM[word] == 1:
+                unk_sentence += "<UNK> "
+            else:
+                unk_sentence += word + " "
 
+        unk_sentences.append(unk_sentence)
