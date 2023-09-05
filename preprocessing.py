@@ -1,7 +1,7 @@
 import glob
-import random
 import time
 import ngram
+import functions
 
 
 # extracts all the sentences from the MLRS Corpus
@@ -55,11 +55,12 @@ if __name__ == '__main__':
 
     unk_unigram = ngram.NGram()
     unk_unigram.populate(unk_sentences)
+    functions.save("./Models/unigram.pickle", unk_unigram)
 
     unk_bigram = ngram.NGram(n=2)
     unk_bigram.populate(unk_sentences)
+    functions.save("./Models/bigram.pickle", unk_bigram)
 
     unk_trigram = ngram.NGram(n=3)
     unk_trigram.populate(unk_sentences)
-
-
+    functions.save("./Models/trigram.pickle", unk_trigram)

@@ -32,7 +32,6 @@ def add(gram, dictionary):
 
 
 def generate_gram(sentence, n):
-
     words = sentence.split()
     pos = 0
     ngrams = []
@@ -40,7 +39,7 @@ def generate_gram(sentence, n):
     while pos + n <= len(words):
         ngram = []
 
-        for i in range(pos, pos+n):
+        for i in range(pos, pos + n):
             ngram.append(words[i])
 
         ngrams.append(ngram)
@@ -49,4 +48,15 @@ def generate_gram(sentence, n):
 
 
 def save(path, model):
-    f
+    f = open(path, "wb")
+    pickle.dump(model, f)
+    f.close()
+
+
+def load(path):
+    try:
+        f = open(path, "rb")
+        return pickle.load(f)
+    except:
+        return None
+
