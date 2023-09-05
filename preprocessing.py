@@ -7,7 +7,7 @@ import ngram
 # extracts all the sentences from the MLRS Corpus
 def convert():
     path = "./Corpus"
-    sentence = "<s>"
+    _sentence = "<s>"
     _sentences = []
     text_files = glob.glob(path + "/*.txt")
     if len(text_files) == 0:
@@ -18,14 +18,14 @@ def convert():
     for file in text_files:
         for line in open(file, 'rt', encoding='utf8'):
             if line[:3] == '</s':
-                sentence += " </s>"
-                _sentences.append(sentence)
-                sentence = "<s>"
+                _sentence += " </s>"
+                _sentences.append(_sentence)
+                _sentence = "<s>"
             elif line[:1] == '<':
                 continue
             else:
                 list = line.split('\t')
-                sentence += " " + list[0].lower()
+                _sentence += " " + list[0].lower()
 
         print("finished scanning file: " + file)
     print("Finished loading Corpus")
@@ -39,7 +39,7 @@ if __name__ == '__main__':
     unk_sentences = []
 
     unigram = ngram.NGram()
-    unigram.populate(sentences, 1)
+    unigram.populate(sentences)
 
     for sentence in sentences:
         unk_sentence = ""
@@ -52,3 +52,14 @@ if __name__ == '__main__':
                 unk_sentence += word + " "
 
         unk_sentences.append(unk_sentence)
+
+    unk_unigram = ngram.NGram()
+    unk_unigram.populate(unk_sentences)
+
+    unk_bigram = ngram.NGram(n=2)
+    unk_bigram.populate(unk_sentences)
+
+    unk_trigram = ngram.NGram(n=3)
+    unk_trigram.populate(unk_sentences)
+
+

@@ -1,3 +1,6 @@
+import pickle
+
+
 def add(gram, dictionary):
     counter = 0
     current_dictionary = dictionary
@@ -45,11 +48,5 @@ def generate_gram(sentence, n):
     return ngrams
 
 
-fruit = {'apple': {}, 'orange': 1}
-add(['apple', 'banana', 'pear'], fruit)
-add(['apple', 'banana', 'bear'], fruit)
-add(['apple', 'banana', 'fruit'], fruit)
-add(['orange'], fruit)
-print(fruit)
-
-print(generate_gram("I don't like to eat", 6))
+def save(path, model):
+    f
