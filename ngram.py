@@ -1,5 +1,6 @@
 import functions
 from collections import OrderedDict
+
 UNK = "<UNK>"
 
 
@@ -8,7 +9,7 @@ class NGram:
         self.LM = {}  # a dictionary used to save the language model
         self.LM_1 = {}  # a dictionary used to store a language model using n-1 grams
         self.count = 0  # stores the total amount of grams in the Language Model
-        self.n = n  # use to store the size of the grams
+        self._n = n  # use to store the size of the grams
 
     def populate(self, sentences):
         for sentence in sentences:
@@ -18,23 +19,23 @@ class NGram:
                 functions.add(gram, self.LM)
 
             # populates the n-1_gram model to be used in the probability method
-            if self.n-1 > 0:
-                for gram in functions.generate_gram(sentence, self.n-1):
+            if self.n - 1 > 0:
+                for gram in functions.generate_gram(sentence, self.n - 1):
                     functions.add(gram, self.LM_1)
 
     def sentence_probability(self, sentence):
-        grams = functions.generate_gram(sentence, self.n)
+        grams = functions.generate_gram(sentence, self._n)
         p = 0
 
         if grams:
             for gram in grams:
                 current_path = self.LM
-                if self.n != 1:
+                if self._n != 1:
                     second_current_path = self.LM_1
 
                     for i in range(0, len(gram)):
                         word = gram[i]
-                        pre_word = gram[i-1] if i > 0 else None
+                        pre_word = gram[i - 1] if i > 0 else None
 
                         if word in current_path:
                             current_path = current_path[word]
@@ -55,7 +56,7 @@ class NGram:
                         else:
                             return 0
 
-                    p *= current_path/second_current_path
+                    p *= current_path / second_current_path
 
                 # unigram probability
                 else:
@@ -76,21 +77,22 @@ class NGram:
 
     def predict_next_word(self, sentence):
         words = sentence.split()
-        if len(words) < self.n-1:
+        if len(words) < self._n - 1:
             return None
 
-        last_words = words[len(words)-self.n+1:]
+        last_words = words[len(words) - self.n + 1:]
         current_pos = self.LM
 
-        for word in last_words:
-            if word in current_pos:
-                current_pos = current_pos[word]
-            elif UNK in current_pos:
-                current_pos = current_pos[UNK]
-            else:
-                return None
+        if self._n != 1:
+            for word in last_words:
+                if word in current_pos:
+                    current_pos = current_pos[word]
+                elif UNK in current_pos:
+                    current_pos = current_pos[UNK]
+                else:
+                    return None
 
-        sorted_values = OrderedDict(sorted(current_pos, reverse=True))
+        sorted_values = dict(sorted(current_pos.items(), key=lambda x: x[1], reverse=True))
 
         for key, _ in sorted_values:
             if key == "<s>" or key == "</s>" or key == UNK:
